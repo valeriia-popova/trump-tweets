@@ -1,0 +1,224 @@
+---
+title: '"I know words. I have the best words"'
+subtitle: "Sentiment analysis of Donald Trump's Twitter rhetoric"
+format: 
+  html: 
+    embed-resources: true
+execute: 
+  warning: false 
+  messages: false
+editor: visual
+---
+
+```{r}
+#| include: FALSE 
+library(tidyverse)
+```
+
+There is a lot of talk that Donald Trump uses inflammatory rhetoric and is generally not very nice. I am putting this to test in this research. I will compare negative and positive rhetoric in D. Trump's tweets using `regex` (sentiment analysis). I will also delve into descriptive statistics of Donald Trump's activity on Twitter.
+
+This research uses a dataset of @realdonaldtrump tweets and pertinent information in 2009-2020 (up until the moment he was banned from Twitter). He was reinstated on Twitter 22 months later, but this is a story for another time. I will focus on tweets prior to the suspension.
+
+```{r}
+trump <- read_csv("https://raw.githubusercontent.com/valeriia-popova/trump-tweets/main/realdonaldtrump.csv")
+trump
+```
+
+#### Negative rhetoric
+
+I wrote a regex code with 5 random negative words of my choice to measure how negative Trump's rhetoric is. I decided to observe this pattern over time - time always tells a story! Below are two alternative codes.
+
+```{r}
+trump |> 
+  filter(str_detect(content, regex("horribl.|terribl.|bad.*|craz.*|radical.*", 
+                                   ignore_case = TRUE))) |> 
+  count(date, sort = TRUE)
+```
+
+```{r}
+#| title: alt-negative
+
+trump_negative <- trump |> 
+  mutate(year = year(date)) |> 
+  group_by(year) |> 
+  summarize(negative = mean(str_detect(content, regex("horribl.|terribl.|bad.*|craz.*|radical.*", 
+                                                 ignore_case = TRUE)))) 
+
+ggplot(trump_negative, aes(year, negative)) +
+  geom_line()
+```
+
+#### Positive rhetoric
+
+As a scientist (and a person!), I strive to be objective. In that spirit, I measured the opposite: how nice Trump's rhetoric is. This time, I used `regex` and 5 random positive words of my choice. Below are two alternative codes.
+
+```{r}
+
+trump |> 
+  filter(str_detect(content, regex("nice.*|kind.*|generous.*|happ(y|i).*|love.*", 
+                                   ignore_case = TRUE))) |> 
+  count(date, sort = TRUE)
+```
+
+```{r}
+#| title: alt-positive 
+
+trump_positive <- trump |> 
+  mutate(year = year(date)) |> 
+  group_by(year) |> 
+  summarize(positive = mean(str_detect(
+    content, regex("nice.*|kind.*|generous.*|happ(y|i).*|love.*", ignore_case = TRUE))))
+
+ggplot(trump_positive, aes(year, positive)) +
+  geom_line()
+```
+
+#### Sentiment analysis
+
+I now will compare if there was more negative or positive rhetoric in D. Trump's tweets over time.
+
+```{r}
+trump_sentiment <- trump_negative |> 
+  left_join(trump_positive, by = "year")
+
+trump_sentiment
+```
+
+```{r}
+ggplot(trump_sentiment) +
+  geom_line(aes(x = year, y = negative, color = "Negative")) +
+  geom_line(aes(x = year, y = positive, color = "Positive")) +
+  labs(title = "Donald Trump's Twitter rhetoric", 
+       x = "Year", 
+       y = "Proportion of tweets", 
+       color = "Sentiment")
+```
+
+In the remainder of this research, I want to see if there are any patterns to Donald Trump's activity on Twitter.
+
+#### Which day is D. Trump most active on Twitter? 
+
+Apparently, Tuesday, by a tiny margin. On average, he is similarly prolific on Twitter during the workdays, with the number of tweets visibly dropping on the weekend.
+
+```{r}
+trump |> 
+  mutate(weekday = wday(date, label = TRUE)) |> 
+  ggplot(aes(x = weekday)) +
+  geom_bar() 
+```
+
+#### How many time does D. Trump tweet per month? 
+
+As the chart shows, Donald Trump became a lot more active ahead and during of his first presidential campaign in 2016. The second, although more modest, spike happened around the time of his second presidential campaign. In contrast, his actual time in office did not result in as many tweets.
+
+This is an interesting pattern that confirms very well the power of "going public." For D. Trump, Twitter is essentially an advertising platform to gain support during his electoral campaigns rather than the medium to reach out his constituencies when he's already in office.
+
+```{r}
+trump |> 
+  ggplot(aes(x = date)) +
+  geom_freqpoly(binwidth = 2629746)
+```
+
+#### What time of the day is Donald Trump most active on Twitter?
+
+Two alternative codes and chart below show that Donald Trump was most active on Twitter in the early afternoon hours - around 2-3pm. Most likely, this is the time slot after lunch that he sets aside to do his social media scouting and engagement. Aside from that, his tweeting activity coincides with the media prime time slots: 7-9am and 7-9pm. This confirms that Donald Trump is not a chaotic communicator: having spent decades in the public eye during his TV show, he certainly chooses strategic time slots for his posts to maximize public attention to his tweets.
+
+```{r}
+
+trump |> 
+  mutate(time = hms::as_hms(date)) |> 
+  ggplot(aes(x = time)) +
+  geom_freqpoly()
+```
+
+```{r}
+
+#| title: alt-active
+trump |> 
+  mutate(hour = hour(date)) |> 
+  ggplot(aes(x = hour)) +
+  geom_bar()
+```
+
+#### Did D. Trump become better at tweeting?   
+
+President Trump 1.0 loved using Twitter for his communication needs. But did he become better and more effective at it towards the end of his term in office? For this task, I focused on retweets and favorites to measure his progress (if lack of it). My assumption is if his social media efforts became more succesful at getting the public attention, we would see an increase in the number of retweets and favorites (e.g. attention currency). I limited my analysis strictly to his time in the Oval Office (starting Jan 20th 2017) to prevent contamination from his earlier tweets when he was a private person.
+
+Below are charts looking at it from multiple angles. I juxtaposed regression models on top of the absoute counts. All of the charts point to a slight increase in D. Trump's visibility. However, it is less impressive than I expected.
+
+```{r}
+trump |> 
+  filter(date > ymd(20170119)) |> 
+  ggplot(aes(date, retweets)) + # or use favorites
+  geom_smooth(se = FALSE)
+```
+
+```{r}
+trump |>
+  filter(date > ymd("20170119")) |>
+  ggplot(aes(date, retweets)) + # or use favorites
+  geom_line(alpha = 0.3) +  
+  geom_smooth(se = FALSE, color = "red") 
+```
+
+As I was observing the charts, I noticed a significant spike in retweets on July 2nd, 2017. This is a curious outlier. What happened that day? Driven my curiosity, I performed future digging into the nature of D. Trump's best performing tweet.
+
+Turns out, the tweet in question was a doctored video in which D. Trump "punches" CNN in the face in the boxing ring. At the time, this post caused outrage among the liberal parts of the Internet - and joy among its conservative counterparts.
+
+Ironically, this tweets has become his "best" tweet yet in terms of performance metrics. This reminds us, once again, that there is no such thing as bad publicity in "attention economy."
+
+```{r}
+
+outlier <- trump |> 
+  arrange(-retweets) |> 
+  select(content, date, retweets) |> 
+  head(n = 1)
+outlier
+```
+
+```{r}
+outlier_retweet <- "# FraudNewsCNN # FNNpic.twitter.com/WYUnHjjUjg \nAI-made video where Trump box-punches CNN \nin the face"
+
+trump |>
+  filter(date > ymd("2017-01-19")) |> 
+  ggplot(aes(date, retweets)) + 
+  geom_point(alpha = 0.3, size = 1) + 
+  geom_smooth(se = FALSE, color = "blue") +
+  annotate(
+    geom = "label", 
+    x = ymd_hms("2017-08-05 08:21:42"), 
+    y = 249000, 
+    label = outlier_retweet, 
+    hjust = "left", 
+    color = "red"
+  ) + 
+  annotate(
+    geom = "segment", 
+    x = ymd_hms("2017-08-05 08:21:42"), 
+    y = 270000, 
+    xend = ymd_hms("2017-07-06 08:21:42"), 
+    yend = 299000, 
+    color = "red",
+    arrow = arrow(type = "closed", length = unit(0.08, "inches"))
+  )
+```
+
+```{r}
+trump |>
+  filter(date > ymd(20170119)) |>
+  mutate(month = floor_date(date, "month")) |>
+  group_by(month) |>
+  summarize(
+    avg_retweets = mean(retweets, na.rm = TRUE),
+    avg_favorites = mean(favorites, na.rm = TRUE)
+  ) |>
+  ggplot(aes(x = month)) + 
+  geom_smooth(aes(y = avg_retweets, color = "Retweets"), se = FALSE) +
+  geom_smooth(aes(y = avg_favorites, color = "Favorites"), se = FALSE) +
+  labs(
+    title = "Average Retweets and Favorites per Month",
+    x = "Month",
+    y = "Average Count",
+    color = "Visibility metric"
+  )
+```
