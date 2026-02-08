@@ -1,7 +1,7 @@
 # "I know words. I have the best words"
 ## Sentiment analysis of Donald Trump’s Twitter rhetoric
 
-[View the rendered report here](https://valeriia-popova.github.io/sentiment-analysis/sentiment-analysis.html)
+[View rendered report here](https://valeriia-popova.github.io/trump-tweets/)
 
 ### Project Overview
 This repository contains a quantitative analysis of Donald Trump's Twitter activity from 2009 to 2020. The project tests the frequency of inflammatory versus positive rhetoric using data-driven methods.
