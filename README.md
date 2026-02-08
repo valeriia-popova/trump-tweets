@@ -1,8 +1,8 @@
-# \"I know words. I have the best words\"
+# "I know words. I have the best words"
 ## Sentiment analysis of Donald Trump’s Twitter rhetoric
 
-[View the rendered report here]([https://your-username.github.io/sentiment-analysis/sentiment-analysis.html](https://valeriia-popova.github.io/trump-tweets/)
- 
+[View the rendered report here](https://valeriia-popova.github.io/sentiment-analysis/sentiment-analysis.html)
+
 ### Project Overview
 This repository contains a quantitative analysis of Donald Trump's Twitter activity from 2009 to 2020. The project tests the frequency of inflammatory versus positive rhetoric using data-driven methods.
 
@@ -18,6 +18,7 @@ The analysis utilizes a dataset of 43,352 tweets from the @realdonaldtrump accou
 
 ### Repository Structure
 * **sentiment-analysis.qmd:** Quarto source file containing R code.
+* **sentiment-analysis.html:** Rendered HTML report.
 * **realdonaldtrump.csv:** Raw dataset.
 * **README.md:** Project documentation.
 
@@ -26,4 +27,3 @@ The analysis utilizes a dataset of 43,352 tweets from the @realdonaldtrump accou
 * tidyverse
 * lubridate
 * hms
-"
