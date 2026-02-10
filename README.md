@@ -13,7 +13,7 @@ The analysis utilizes a dataset of 43,352 tweets from the @realdonaldtrump accou
 
 ### Key Findings
 * **Strategic Timing:** Activity peaks during electoral campaigns and aligns with media prime-time slots (7-9 AM and 7-9 PM).
-* **Sentiment Trends:** Data indicates an increase in negative rhetoric descriptors leading into and during the presidential term.
+* **Sentiment Trends:** Data indicate an increase in negative rhetoric descriptors leading into and during the presidential term.
 * **Visibility Metrics:** High engagement metrics (retweets/favorites) correlate significantly with controversial content, specifically the July 2, 2017 outlier.
 
 ### Repository Structure
