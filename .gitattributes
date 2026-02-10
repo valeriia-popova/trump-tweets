@@ -1,0 +1,5 @@
+# Mark HTML files as documentation so they are excluded from the main language bar
+*.html linguist-documentation=true
+
+# Force Quarto files to be detected as R code
+*.qmd linguist-language=R
